@@ -44,7 +44,7 @@ const crawl = async (browser, firstPage, enableWebp, viewPortSettings, prefix) =
     await browserPage.setRequestInterception(true);
     browserPage.on('request', request => {
         const resourceType = request.resourceType();
-        if (['stylesheet', 'font', 'script'].indexOf(resourceType) > -1) {
+        if (['stylesheet', 'font'].indexOf(resourceType) > -1) {
             request.abort();
         } else {
             if (request.resourceType() == 'document' || request.resourceType() == 'css' || request.resourceType() == 'image') {
