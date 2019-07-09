@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const Multiprogress = require("multi-progress");
 const multi = new Multiprogress(process.stderr);
+var colors = require('colors');
 
 const errorPages = [];
 
@@ -37,7 +38,7 @@ const crawl = async (browser, firstPage, enableWebp, viewPortSettings, prefix) =
         width: 30,
         total: 1
     });
-    const filterLinks = (url) => url && (url.startsWith(firstPage) || url.startsWith('/') && !url.includes('/-/media'));
+    const filterLinks = (url) => url && ((url.startsWith(firstPage) || url.startsWith('/')) && !url.includes('/-/media'));
     let linksToVisit = [firstPage];
     let visitedLinks = [];
     const browserPage = await browser.newPage();
@@ -89,16 +90,18 @@ const crawl = async (browser, firstPage, enableWebp, viewPortSettings, prefix) =
     await executeAsync();
 }
 
-const config = require("./config.json");
-
-const launchCrawl = async (enableWebp, viewPortSettings, prefix) => {
+const launchCrawl = async (page, enableWebp, viewPortSettings, prefix) => {
     const browser = await puppeteer.launch();
-    const firstPage = config.url;
-    await crawl(browser, firstPage, enableWebp, viewPortSettings, prefix)
+    await crawl(browser, page, enableWebp, viewPortSettings, prefix)
     await browser.close();
 };
 
 (async () => {
+    const firstPage = process.argv[2];
+    if ( !firstPage){
+        console.error("Url should be specified: node .\\index.js https://example.com".red);
+        return;
+    }
     const mobileViewport = {
         width: 640,
         height: 480,
@@ -110,10 +113,10 @@ const launchCrawl = async (enableWebp, viewPortSettings, prefix) => {
     }
     await Promise.all([
         // mobiles + webp
-        launchCrawl(true, mobileViewport, 'mb+'),
-        launchCrawl(false, mobileViewport, 'mb-'),
-        launchCrawl(false, pcViewport, 'pc-'),
-        launchCrawl(true, pcViewport, 'pc+'),
+        launchCrawl(firstPage, true, mobileViewport, 'mb+'),
+        launchCrawl(firstPage, false, mobileViewport, 'mb-'),
+        launchCrawl(firstPage, false, pcViewport, 'pc-'),
+        launchCrawl(firstPage, true, pcViewport, 'pc+'),
     ]
     )
     console.log("Error pages", [...new Set(errorPages)])

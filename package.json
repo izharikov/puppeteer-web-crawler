@@ -9,6 +9,7 @@
   "author": "Igor Zharikov",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.3.3",
     "multi-progress": "^2.0.0",
     "puppeteer": "^1.17.0"
   }
